@@ -9,14 +9,28 @@ http://localhost:5000/swagger/
 
 http://localhost/swager/ (при запуске docker-compose up --build)
 
-Последовательность действи при работе с API:
+Последовательность действий при работе с API:
 
 1) Регистрируем пользователя
 2) Логинимся и получаем JWT токен
 3) Работаем с API - добавляем данные, смотрим статистику
 
 
-### Для запуска в разработчика нужно:
+## Для запуска полной сборки на сервере
+```
+git clone git@github.com:mechnotech/welltory_test.git
+cd welltory_test
+cp .env.example .env
+docker-compose -up -d
+```
+
+
+Приложение будет доступно по адресу http://localhost или http://127.0.0.1
+
+Документированное API http://localhost/swagger/
+
+
+### Для запуска в режиме разработчика нужно:
 #### Создать окружение
 ```
 git clone git@github.com:mechnotech/welltory_test.git
@@ -36,19 +50,4 @@ pip install -r src/requirements.txt
 
 
 ####
-
-## Для запуска полной сборки на сервере
-```
-git clone git@github.com:mechnotech/welltory_test.git
-cd welltory_test
-cp .env.example .env
-docker-compose -up -d
-```
-
-
-Приложение будет доступно по адресу http://localhost или http://127.0.0.1
-
-Документированное API http://localhost/swagger/
-
-
 
