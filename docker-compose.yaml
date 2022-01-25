@@ -5,10 +5,6 @@ volumes:
     name: redis_data_med
   postgres_data_med:
     name: postgres_data_med
-  med_static_volume:
-    name: med_static_volume
-  nginx_cache:
-    name: nginx_cache
 
 services:
   postgres_med:
@@ -36,8 +32,6 @@ services:
   med_api:
     build: .
     container_name: med_api
-    volumes:
-      - med_static_volume:/code/src/static
     depends_on:
       - postgres_med
     networks:
@@ -50,12 +44,10 @@ services:
     container_name: med_nginx
     restart: always
     volumes:
-      - med_static_volume:/code/src/static
-      - nginx_cache:/var/lib/nginx/proxy_cache
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/site.conf:/etc/nginx/conf.d/site.conf:ro
     ports:
-      - "8500:8500"
+      - "80:80"
     depends_on:
       - med_api
     networks:

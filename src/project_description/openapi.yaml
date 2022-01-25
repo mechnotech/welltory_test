@@ -9,9 +9,10 @@ info:
     
     # Регистрируем пользователя и получаем токен
     1. Пользователь регистрируется на `/auth/registration/` c username, email и паролем 
-    2. Пользователь получает JWT токены на `/auth/token/` указыая username и пароль
-    3. Если JWT-access токен истек, обновить его множно тут `/auth/refresh/`
-    4. Отозвать токены `/auth/logout/`
+    2. Пользователь получает JWT токены при логине `/auth/login/` указыая username и пароль
+    3. (скопировать assess token из выдачи и вставить в замок Authorize если работете через Swagger)
+    4. Если JWT-access токен истек, обновить его множно тут `/auth/refresh/`
+    5. Отозвать токены `/auth/logout/`
    
     
     # Работа со статистикой по заднию.
@@ -47,9 +48,11 @@ paths:
               properties:
                 login:
                   type: string
+                  example: 'john'
                 password:
                   type: string
                   format: password
+                  example: '123456'
                   writeOnly: true
                 email:
                   type: string
@@ -91,16 +94,22 @@ paths:
               properties:
                 login:
                   type: string
+                  example: 'john'
                 password:
                   type: string
                   format: password
+                  example: '123456'
                   writeOnly: true
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Token'
+                type: object
+                example: {
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0MzExODc1MCwianRpIjoiYjYxYWYxZmItYjJkMS00OTk1LThhMTYtN2I3MzA1MjYyZTc3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImpvaG4iLCJuYmYiOjE2NDMxMTg3NTAsImV4cCI6MTY0MzEyMjM1MH0.tvIcsALq9nzLyvzBcEmET2PZxsjmPPL7YaqomTeBJ_k",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0MzExODc1MCwianRpIjoiN2RhMGFkZWEtOTk4Yy00NmNkLWI1OWEtYTYyMDRhN2I2NWUxIiwidHlwZSI6InJlZnJlc2giLCJzdWIiOiJqb2huIiwibmJmIjoxNjQzMTE4NzUwLCJleHAiOjE2NDMyMDUxNTB9.JmkFCERqxbtbjvCCIjqo7jMUkDHXe43JiCLaZZqU7Ag"
+}
           description: ''
         400:
           description: Ошибка
