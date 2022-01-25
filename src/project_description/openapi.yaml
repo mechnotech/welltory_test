@@ -1,0 +1,429 @@
+openapi: 3.0.2
+info:
+  title: 'Welltory stat service API'
+  version: ''
+  description: |
+    запросы к API начинаются с `/api/v1/`
+    # Описание
+    Тестовое задание для Welltory
+    
+    # Регистрируем пользователя и получаем токен
+    1. Пользователь регистрируется на `/auth/registration/` c username, email и паролем 
+    2. Пользователь получает JWT токены на `/auth/token/` указыая username и пароль
+    3. Если JWT-access токен истек, обновить его множно тут `/auth/refresh/`
+    4. Отозвать токены `/auth/logout/`
+   
+    
+    # Работа со статистикой по заднию.
+    1. Отправляем данные на ручку `/stats/calculate` (позволяет добавлять данные в произвольном порядке, в том числе с повторами, досылать данные)
+    2. Получаем рассчитанную статистику тут `/stats/correlation`
+    
+
+servers:
+  - url: /api/v1/
+
+tags:
+  - name: AUTH
+    description: Аутентификация
+  - name: STATS
+    description: Статистика
+
+
+paths:
+
+  /auth/registration/:
+    post:
+      tags:
+        - AUTH
+      description: Регистрация пользователя.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - login
+                - password
+                - email
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                  writeOnly: true
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  login:
+                    type: string
+
+          description: 'Регистрация успешна!'
+        409:
+            content:
+              application/json:
+                schema:
+                  properties:
+                    login:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+            description: 'Пользователь с таким login или email уже зарегистрирован!'
+
+  /auth/login/:
+    post:
+      tags:
+        - AUTH
+      description: Получение JWT-токена в обмен на username и login.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - login
+                - password
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                  writeOnly: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+        400:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /auth/refresh/:
+    post:
+      tags:
+        - AUTH
+      description: Получить JWT-токены в обмен на JWT-refresh token Права доступа:**Аутентифицированный пользователь**
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+        400:
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      security:
+        - bearerAuth: [ ]
+
+  /auth/logout/:
+    get:
+      tags:
+        - AUTH
+      description: Завершить сессию (переместить access token в logouts) Права доступа:**Любой авторизованный пользователь**
+      responses:
+        200:
+          description: Ok
+        401:
+          description: Необходим JWT токен
+      security:
+        - bearerAuth: [ ]
+
+  /stats/calculate:
+    post:
+      tags:
+        - STATS
+      description: Принимает данные о метриках пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - user_id
+                - data
+              properties:
+                user_id:
+                  type: integer
+                  example: 42
+                data:
+                  required:
+                    - x_data_type
+                    - y_data_type
+                    - x
+                    - y
+                  properties:
+                    x_data_type:
+                      type: string
+                      example: 'sleep_hours'
+                    y_data_type:
+                      type: string
+                      example: 'morning_pulse'
+                    x:
+                      type: array
+                      example: [
+      {
+        "date": "2022-01-14",
+        "value": 8.7
+      },
+      {
+        "date": "2022-01-08",
+        "value": 9.4
+      },
+      {
+        "date": "2022-02-01",
+        "value": 6.6
+      },
+      {
+        "date": "2022-01-11",
+        "value": 3.6
+      },
+      {
+        "date": "2022-01-25",
+        "value": 6.0
+      },
+      {
+        "date": "2022-01-04",
+        "value": 5.9
+      },
+      {
+        "date": "2022-01-27",
+        "value": 6.2
+      },
+      {
+        "date": "2022-01-03",
+        "value": 3.3
+      },
+      {
+        "date": "2022-01-02",
+        "value": 2.7
+      },
+      {
+        "date": "2022-01-19",
+        "value": 5.0
+      },
+      {
+        "date": "2022-01-12",
+        "value": 6.4
+      },
+      {
+        "date": "2022-01-26",
+        "value": 5.2
+      },
+      {
+        "date": "2022-01-18",
+        "value": 5.6
+      },
+      {
+        "date": "2022-01-16",
+        "value": 9.0
+      },
+      {
+        "date": "2022-01-23",
+        "value": 5.4
+      },
+      {
+        "date": "2022-01-09",
+        "value": 5.6
+      },
+      {
+        "date": "2022-01-06",
+        "value": 6.9
+      },
+      {
+        "date": "2022-01-17",
+        "value": 9.3
+      },
+      {
+        "date": "2022-01-15",
+        "value": 9.1
+      },
+      {
+        "date": "2022-01-13",
+        "value": 7.3
+      }
+    ]
+
+                    y:
+                      type: array
+                      example: [
+      {
+        "date": "2022-01-16",
+        "value": 56
+      },
+      {
+        "date": "2022-01-31",
+        "value": 67
+      },
+      {
+        "date": "2022-01-01",
+        "value": 65
+      },
+      {
+        "date": "2022-01-05",
+        "value": 60
+      },
+      {
+        "date": "2022-01-08",
+        "value": 47
+      },
+      {
+        "date": "2022-02-01",
+        "value": 87
+      },
+      {
+        "date": "2022-01-26",
+        "value": 93
+      },
+      {
+        "date": "2022-01-23",
+        "value": 68
+      },
+      {
+        "date": "2022-01-13",
+        "value": 49
+      },
+      {
+        "date": "2022-01-06",
+        "value": 44
+      },
+      {
+        "date": "2022-01-29",
+        "value": 75
+      },
+      {
+        "date": "2022-01-10",
+        "value": 88
+      },
+      {
+        "date": "2022-01-20",
+        "value": 54
+      },
+      {
+        "date": "2022-01-11",
+        "value": 82
+      },
+      {
+        "date": "2022-01-27",
+        "value": 62
+      },
+      {
+        "date": "2022-01-19",
+        "value": 57
+      },
+      {
+        "date": "2022-01-18",
+        "value": 82
+      },
+      {
+        "date": "2022-01-17",
+        "value": 65
+      },
+      {
+        "date": "2022-01-03",
+        "value": 64
+      },
+      {
+        "date": "2022-01-28",
+        "value": 50
+      }
+    ]
+      responses:
+        201:
+          description: Запись создана
+        400:
+          description: Неправильный формат входных данных
+      security:
+        - bearerAuth: [ ]
+
+  /stats/correlation:
+    get:
+      tags:
+        - STATS
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: integer
+            example: 42
+          description: ID пользователя, которому принадлежат параметры статистики
+        - in: query
+          name: x_data_type
+          schema:
+            type: string
+            example: 'sleep_hours'
+          description: Название типа первого ряда параметров
+        - in: query
+          name: y_data_type
+          schema:
+            type: string
+            example: 'morning_pulse'
+          description: Название типа второго ряда параметров для расчета статистики
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {
+       "user_id": int,
+       "x_data_type": str,
+       "y_data_type": str,
+       "correlation": {
+           "value": float,
+           "p_value": float,
+       }
+   }
+          description: Ok
+        404:
+          description: Не найден
+        400:
+          description: Неправильный формат аргументов запроса
+      security:
+          - bearerAuth: [ ]
+
+
+
+components:
+  schemas:
+
+
+    ValidationError:
+      title: Ошибка валидации
+      type: object
+      properties:
+        field_name:
+          type: array
+          items:
+            type: string
+
+    Token:
+      title: Токен
+      type: object
+      properties:
+        token:
+          type: string
+          title: access токен
+
+
+  securitySchemes:
+      bearerAuth: # arbitrary name for the security scheme
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+
+  security:
+    - bearerAuth: [ ]

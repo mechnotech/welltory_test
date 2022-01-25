@@ -1,0 +1,42 @@
+version: "3.6"
+
+volumes:
+  redis_data_med:
+    name: redis_data_med
+  postgres_data_med:
+    name: postgres_data_med
+
+services:
+  postgres_med:
+    image: postgres:13.0
+    container_name: postgres_med
+    restart: always
+    volumes:
+      - postgres_data_med:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env
+    networks:
+      - med
+
+  redis_med:
+    image: redis:6.2.6-bullseye
+    container_name: redis_med
+    restart: always
+    volumes:
+     - redis_data_med:/data
+    depends_on:
+      - postgres_med
+    ports:
+     - "6363:6379"
+    networks:
+     - med
+
+networks:
+  med:
+    driver: bridge
+
+
+
+
